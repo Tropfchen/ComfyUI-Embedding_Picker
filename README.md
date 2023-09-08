@@ -17,12 +17,16 @@ or
 
 To uninstall:
 
-- Delete the `ComfyUi_Embedding_Picker` in your ComfyUI custom_nodes directory
+- Delete the `ComfyUi_Embedding_Picker` in your ComfyUI custom_nodes directory and `epQuickNodes.js` file in `ComfyUI\web\extensions\tropf` directory
 
 # Use
 
 Simply connect `Embedding Picker` node, that you will find in `utils` menu, in between _CLIP Encoding_ and _Text Multiine_ or other similar nodes.
-By default the embedding will be set as first prompt, set `append` to True if you prefer it to be the last one.
+
+You can also right click on _CLIP Encoding_ node, and choose `Prepend Embedding Picker` to place and link one automatically.
+Similar option exists on `Embedding Picker` node itself, feel free to use both multiple times to chain more nodes.
+
+By default the embedding will be set as the first prompt, set `append` to True if you prefer it to be the last one.
 
 ## Example Workflow:
 
