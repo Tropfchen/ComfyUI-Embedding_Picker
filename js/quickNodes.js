@@ -108,7 +108,7 @@ function addNode(name, nextTo, options = {}) {
 app.registerExtension({
   name: "trop.EP.QuickNodes",
   async beforeRegisterNodeDef(nodeType, nodeData, app) {
-    if (nodeData.name === "EmbeddingPicker") {
+    if (nodeData.name === "EmbeddingPicker" || nodeData.name === "Text Multiline") {
       addMenuHandler(nodeType, function (_, options) {
         options.unshift({
           content: "Append Embedding Picker",
