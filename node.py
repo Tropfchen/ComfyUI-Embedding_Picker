@@ -13,7 +13,6 @@ class EmbeddingPicker:
 
         return {
             "required": {
-                "prompts": ("STRING", {"forceInput": True}),
                 "embedding": ((embeddings),),
                 "emphasis": (
                     "FLOAT",
@@ -28,27 +27,24 @@ class EmbeddingPicker:
                     "BOOLEAN",
                     {"default": False, "label_on": "true ", "label_off": "false "},
                 ),
+                "text": ("STRING", {"multiline": True}),
             },
         }
 
     RETURN_TYPES = ("STRING",)
-    RETURN_NAMES = ("prompts",)
+    RETURN_NAMES = ("text",)
     FUNCTION = "concat_embedding"
     OUTPUT_NODE = False
 
     CATEGORY = "utils"
 
-    def concat_embedding(self, prompts, embedding, emphasis, append):
+    def concat_embedding(self, text, embedding, emphasis, append):
         emb = "embedding:" + Path(embedding).stem
 
         emphasis = f"{emphasis:.3f}"
         if emphasis != "1.000":
             emb = f"({emb}:{emphasis})"
 
-        output = f"{prompts}, {emb}" if append else f"{emb}, {prompts}"
+        output = f"{text}, {emb}" if append else f"{emb}, {text}"
 
         return (output,)
-
-
-NODE_CLASS_MAPPINGS = {"EmbeddingPicker": EmbeddingPicker}
-NODE_DISPLAY_NAME_MAPPINGS = {"EmbeddingPicker": "Embedding Picker"}

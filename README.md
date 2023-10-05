@@ -5,6 +5,10 @@ Or perhaps you use only one, cause you forgot you have tens of them installed?
 
 Try this.
 
+### Note to existing users:
+
+Version v2 will cause validation error in workflows that used previous version. There's nothing to worry about, simply replace error causing nodes with new ones, or stick to version v1
+
 # Installation
 
 Exactly the same as with other simple custom nodes.
@@ -21,13 +25,19 @@ To uninstall:
 
 # Use
 
-Simply connect `Embedding Picker` node, that you will find in `utils` menu, in between _CLIP Encoding_ and _Text Multiine_ or other similar nodes.
+Right click on the _CLIP Text Encode_ node and select the top option 'Prepend Embedding Picker'. This will create the node itself and copy all your prompts.
+A similar option exists on the `Embedding Picker' node itself, use this to quickly chain multiple embeddings.
 
-You can also right click on _CLIP Encoding_ node, and choose `Prepend Embedding Picker` to place and link one automatically.
-Similar option exists on `Embedding Picker` node itself, feel free to use both multiple times to chain more nodes.
+You can also find the node in `utils` menu.
 
-By default the embedding will be set as the first prompt, set `append` to True if you prefer it to be the last one.
+By default the embedding will be the placed as first prompt, and will result in such text
 
-## Example Workflow:
+> embedding:EasyNegative.pt, text, watermark
+
+Set `append` to True if you prefer it to be at the end, i. e.
+
+> text, watermark, embedding:EasyNegative.pt
+
+## Example Workflow
 
 ![Example](example_workflow.png)

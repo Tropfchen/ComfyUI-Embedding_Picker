@@ -1,6 +1,7 @@
-from .node import NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS
+from .node import EmbeddingPicker
 
-__all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"]
+NODE_CLASS_MAPPINGS = {"EmbeddingPicker": EmbeddingPicker}
+NODE_DISPLAY_NAME_MAPPINGS = {"EmbeddingPicker": "Embedding Picker"}
 
 # --------------------------- Install web extension ----------------------------
 import shutil

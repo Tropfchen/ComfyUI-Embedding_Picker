@@ -18,7 +18,9 @@ function hideWidget(node, widget, suffix = "") {
     if (!node_input || !node_input.link) {
       return undefined;
     }
-    return widget.origSerializeValue ? widget.origSerializeValue() : widget.value;
+    return widget.origSerializeValue
+      ? widget.origSerializeValue()
+      : widget.value;
   };
 
   // Hide any linked widgets, e.g. seed+seedControl
@@ -79,23 +81,30 @@ function addMenuHandler(nodeType, callback) {
  * @param {object} [options={}] - Optional parameters to adjust the new node's behavior.
  * @param {boolean} [options.select=true] - If set to true, the new node will be selected.
  * @param {number} [options.shiftY=0] - The vertical shift from the reference node's position.
- * @param {boolean} [options.before=false] - If true, the new node will be positioned 
+ * @param {boolean} [options.before=false] - If true, the new node will be positioned
  *     to the left of the reference node; otherwise, to the right.
+ * @param {array} [options.size] - The size of the new node.
  *
  * @returns {object} The newly created node.
  */
-function addNode(name, nextTo, options = {}) {
+function placeNewNode(name, nextTo, options = {}) {
   const nodeSeparation = 30;
-  const { select = true, shiftY = 0, before = false } = options;
+  const { select = true, shiftY = 0, before = false, size = null } = options;
 
   const node = LiteGraph.createNode(name);
-  node.size = [300, 100];
+
+  if (size) {
+    node.size = size;
+  }
+
   app.graph.add(node);
 
   const [nextToX, nextToY] = nextTo.pos;
   const [nextToWidth] = nextTo.size;
 
-  const offsetX = before ? -node.size[0] - nodeSeparation : nextToWidth + nodeSeparation;
+  const offsetX = before
+    ? -node.size[0] - nodeSeparation
+    : nextToWidth + nodeSeparation;
   node.pos = [nextToX + offsetX, nextToY + shiftY];
 
   if (select) {
@@ -105,54 +114,72 @@ function addNode(name, nextTo, options = {}) {
   return node;
 }
 
+/**
+ * Converts every `node` widget that matches `newNodeWidgetNames`
+ * into an input slots, before linking them with `newNode`.
+ *
+ * @param {Object} node - The "right" node.
+ * @param {Object} nodeData - The "right" node data.
+ * @param {Object} newNode - The "left" node.
+ * @param {Array} newNodeWidgetNames - Widget/Slots names that should be connected between nodes.
+ */
+function prependNode(node, nodeData, newNode, newNodeWidgetNames) {
+  for (const widget_name of newNodeWidgetNames) {
+    let slot = node.findInputSlot(widget_name);
+    if (slot === -1) {
+      //Convert widget into input
+      const w = node.widgets.find((obj) => obj.name === widget_name);
+      const { required, optional } = nodeData?.input;
+      const config = required[w.name] ||
+        optional?.[w.name] || [w.type, w.options || {}];
+      convertToInput(node, w, config);
+
+      slot = node.findInputSlot(widget_name);
+    }
+    newNode.connect(newNode.findOutputSlot(widget_name), node, slot);
+  }
+}
+
 app.registerExtension({
   name: "trop.EP.QuickNodes",
   async beforeRegisterNodeDef(nodeType, nodeData, app) {
-    if (nodeData.name === "EmbeddingPicker" || nodeData.name === "Text Multiline") {
+    if (
+      nodeData.name === "EmbeddingPicker" ||
+      nodeData.name === "CLIPTextEncode"
+    ) {
       addMenuHandler(nodeType, function (_, options) {
         options.unshift({
-          content: "Append Embedding Picker",
+          content: `Prepend Embedding Picker`,
           callback: () => {
-            const EPNode = addNode("EmbeddingPicker", this);
-            const EPNodeLinks = this.outputs[0].links ? this.outputs[0].links.map((l) => ({ ...graph.links[l] })) : [];
-
-            this.disconnectOutput(0);
-            this.connect(0, EPNode, 0);
-
-            // reconnect all links to new node
-            for (const link of EPNodeLinks) {
-              EPNode.connect(0, link.target_id, link.target_slot);
-            }
-          },
-        });
-      });
-    }
-
-    if (nodeData.name === "CLIPTextEncode") {
-      addMenuHandler(nodeType, function (_, options) {
-        options.unshift({
-          content: "Prepend Embedding Picker",
-          callback: () => {
-            //TODO: check input for widget
-            if (this.findInputSlot("text") === -1) {
-              const w = this.widgets[0];
-              const { required, optional } = nodeData?.input || {};
-              const config = required[w.name] || optional?.[w.name] || [w.type, w.options || {}];
-              convertToInput(this, w, config);
-            }
-
-            const EPNode = addNode("EmbeddingPicker", this, {
+            const newNode = placeNewNode("EmbeddingPicker", this, {
               before: true,
-              shiftY: 20,
+              shiftY: nodeData.name === "CLIPTextEncode" ? 20 : 0,
+              size: [300, 200],
             });
 
-            // connect new node in between
-            if (this.getInputLink(1)) {
-              const previousNode = this.getInputNode(1);
-              this.disconnectInput(1);
-              previousNode.connect(0, EPNode, 0);
+            try {
+              // Copy colors to new node
+              ["bgcolor", "color"].forEach((prop) => {
+                if (typeof this[prop] !== "undefined") {
+                  newNode[prop] = this[prop];
+                }
+              });
+
+              // copy prompts to new node
+              const prompts = this.widgets.find((w) => w.name === "text").value;
+              if (prompts && typeof prompts !== "undefined") {
+                newNode.widgets[3].value = prompts;
+              }
+            } catch (e) {
+              console.error("Failed to copy prompts", e);
             }
-            EPNode.connect(0, this, 1);
+
+            prependNode(this, nodeData, newNode, ["text"]);
+
+            if (this.size[1] > 120) {
+              // In some cases settings size too low breaks node. Minimum size of CLIPTextEncode is 210x50 and 210x118 for EP
+              this.size = [this.size[0], 120];
+            }
           },
         });
       });
