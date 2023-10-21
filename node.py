@@ -39,6 +39,7 @@ class EmbeddingPicker:
     CATEGORY = "utils"
 
     def concat_embedding(self, text, embedding, emphasis, append):
+        emphasis = min(max(emphasis, 0.001), 3)
         emb = "embedding:" + Path(embedding).stem
 
         emphasis = f"{emphasis:.3f}"
