@@ -18,7 +18,7 @@ class EmbeddingPicker:
                     "FLOAT",
                     {
                         "default": 1.0,
-                        "min": 0.05,
+                        "min": 0.0,
                         "max": 3.0,
                         "step": 0.05,
                     },
@@ -39,7 +39,9 @@ class EmbeddingPicker:
     CATEGORY = "utils"
 
     def concat_embedding(self, text, embedding, emphasis, append):
-        emphasis = min(max(emphasis, 0.001), 3)
+        if emphasis < 0.05:
+            return (text,)
+
         emb = "embedding:" + Path(embedding).stem
 
         emphasis = f"{emphasis:.3f}"
