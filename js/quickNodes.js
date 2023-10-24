@@ -126,6 +126,7 @@ function placeNewNode(name, nextTo, options = {}) {
 function prependNode(node, nodeData, newNode, newNodeWidgetNames) {
   for (const widget_name of newNodeWidgetNames) {
     let slot = node.findInputSlot(widget_name);
+
     if (slot === -1) {
       //Convert widget into input
       const w = node.widgets.find((obj) => obj.name === widget_name);
@@ -164,7 +165,11 @@ app.registerExtension({
                   newNode[prop] = this[prop];
                 }
               });
+            } catch (e) {
+              console.error("Failed to copy colors", e);
+            }
 
+            try {
               // copy prompts to new node
               const prompts = this.widgets.find((w) => w.name === "text").value;
               if (prompts && typeof prompts !== "undefined") {
@@ -177,7 +182,8 @@ app.registerExtension({
             prependNode(this, nodeData, newNode, ["text"]);
 
             if (this.size[1] > 120) {
-              // In some cases settings size too low breaks node. Minimum size of CLIPTextEncode is 210x50 and 210x118 for EP
+              // In some cases setting size too low breaks nodes.
+              // Minimum size of CLIPTextEncode is 210x50 and 210x118 for EP
               this.size = [this.size[0], 120];
             }
           },
