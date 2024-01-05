@@ -5,10 +5,6 @@ Or perhaps you use only one, cause you forgot you have tens of them installed?
 
 Try this.
 
-### Note to existing users:
-
-Version v2 will cause validation error in workflows that used previous version. There's nothing to worry about, simply replace error causing nodes with new ones, or stick to version v1
-
 # Installation
 
 Exactly the same as with other simple custom nodes.
@@ -21,7 +17,7 @@ or
 
 To uninstall:
 
-- Delete the `ComfyUi_Embedding_Picker` in your ComfyUI custom_nodes directory and `epQuickNodes.js` file in `ComfyUI\web\extensions\tropf` directory
+- Delete `ComfyUi_Embedding_Picker` in your ComfyUI custom_nodes directory
 
 # Use
 
