@@ -11,7 +11,7 @@ comfy_dir = node_dir.parent.parent
 destination_dir = comfy_dir / "web" / "extensions" / "tropfchen"
 destination_path = destination_dir / "epQuickNodes.js"
 
-if destination_path.exists:
+if destination_path.exists():
     destination_path.unlink()
 
 # --------------------------- Install web extension ----------------------------
