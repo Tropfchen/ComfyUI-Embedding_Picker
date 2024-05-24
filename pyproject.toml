@@ -1,5 +1,5 @@
 [project]
-name = "ComfyUI-Embedding_Picker"
+name = "comfyui-embedding_picker"
 description = "Tired of forgetting and misspelling often weird names of embeddings you use? Or perhaps you use only one, cause you forgot you have tens of them installed?"
 version = "2.1.0"
 license = "LICENSE"
