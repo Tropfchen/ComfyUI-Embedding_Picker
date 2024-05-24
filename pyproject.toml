@@ -1,14 +1,16 @@
 [project]
-name = "comfyui-embedding_picker"
+name = "ComfyUI-Embedding_Picker"
 description = "Tired of forgetting and misspelling often weird names of embeddings you use? Or perhaps you use only one, cause you forgot you have tens of them installed?"
-version = "1.0.0"
+version = "2.1.0"
 license = "LICENSE"
 
 [project.urls]
 Repository = "https://github.com/Tropfchen/ComfyUI-Embedding_Picker"
-#  Used by Comfy Registry https://comfyregistry.org
 
 [tool.comfy]
-PublisherId = ""
-DisplayName = "ComfyUI-Embedding_Picker"
+PublisherId = "tropfchen"
+DisplayName = "Embedding Picker"
 Icon = ""
+
+[tool.black]
+target-version = ["py311", "py312"]
