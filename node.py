@@ -1,53 +1,57 @@
 from pathlib import Path
-
 import folder_paths
+from comfy_api.latest import io, ComfyExtension, ui
 
 
-class EmbeddingPicker:
-    def __init__(self):
-        pass
-
+class EmbeddingPicker(io.ComfyNode):
     @classmethod
-    def INPUT_TYPES(self):
+    def define_schema(cls) -> io.Schema:
         embeddings = folder_paths.get_filename_list("embeddings")
 
-        return {
-            "required": {
-                "embedding": ((embeddings),),
-                "emphasis": (
-                    "FLOAT",
-                    {
-                        "default": 1.0,
-                        "min": 0.0,
-                        "max": 3.0,
-                        "step": 0.05,
-                    },
+        return io.Schema(
+            node_id="EmbeddingPicker",
+            display_name="Embedding Picker",
+            category="utils",
+            inputs=[
+                io.Combo.Input("embedding", options=embeddings),
+
+                io.Float.Input(
+                    "emphasis",
+                    default=1.0,
+                    min=0.0,
+                    max=3.0,
+                    step=0.05
                 ),
-                "append": (
-                    "BOOLEAN",
-                    {"default": False, "label_on": "true ", "label_off": "false "},
-                ),
-                "text": ("STRING", {"multiline": True}),
-            },
-        }
 
-    RETURN_TYPES = ("STRING",)
-    RETURN_NAMES = ("text",)
-    FUNCTION = "concat_embedding"
-    OUTPUT_NODE = False
+                io.Boolean.Input("append", default=False),
 
-    CATEGORY = "utils"
+                io.String.Input("text", multiline=True)
+            ],
+            outputs=[
+                io.String.Output("text")
+            ]
+        )
 
-    def concat_embedding(self, text, embedding, emphasis, append):
+    @classmethod
+    def execute(cls, text, embedding, emphasis, append) -> io.NodeOutput:
         if emphasis < 0.05:
-            return (text,)
+            return io.NodeOutput(text)
 
         emb = "embedding:" + Path(embedding).stem
 
-        emphasis = f"{emphasis:.3f}"
-        if emphasis != "1.000":
-            emb = f"({emb}:{emphasis})"
+        emphasis_str = f"{emphasis:.3f}"
+        if emphasis_str != "1.000":
+            emb = f"({emb}:{emphasis_str})"
 
         output = f"{text}, {emb}" if append else f"{emb}, {text}"
 
-        return (output,)
+        return io.NodeOutput(output)
+
+
+class EmbeddingPickerExtension(ComfyExtension):
+    async def get_node_list(self) -> list[type[io.ComfyNode]]:
+        return [EmbeddingPicker]
+
+
+async def comfy_entrypoint() -> ComfyExtension:
+    return EmbeddingPickerExtension()
